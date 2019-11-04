@@ -10,7 +10,7 @@ export default class Home extends Component {
                     <Link to='/photo'>Photo Input</Link>
                 </li>
                 <li>
-                    <Link to='camera'>Video Camera</Link>
+                    <Link to='/camera'>Video Camera</Link>
                 </li>
             </div>
         );
