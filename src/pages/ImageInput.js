@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
+import { loadModels, getFullFaceDescription } from '../api/face'
 
 // Initial State
 const INIT_STATE = {
@@ -13,6 +14,33 @@ class ImageInput extends Component {
         this.state = { ...INIT_STATE };
     }
 
+    componentDidMount = async () => {
+        await loadModels();
+        // this.setState({ faceMatcher: await createMatcher(JSON_PROFILE) });
+        // await this.handleImage(this.state.imageURL);
+    }
+
+    handleImage = async (image = this.state.imageURL) => {
+        await getFullFaceDescription(image).then(fullDesc => {
+            console.log(fullDesc);
+            // this.setState({ fullDesc });
+            // if (!!fullDesc) {
+            //     this.setState({
+            //         fullDesc,
+            //         detections: fullDesc.map(fd => fd.detection),
+            //         descriptors: fullDesc.map(fd => fd.descriptor)
+            //     });
+            // }
+        });
+
+        // if (!!this.state.descriptors && !! this.state.faceMatcher) {
+        //     let match = await this.state.descriptors.map(descriptor => 
+        //         this.state.faceMatcher.findBestMatch(descriptor)
+        //     );
+        //     this.setState({ match });
+        // }
+    }
+
     handleFileChange = async event => {
         if (!event.target.files[0]) return;
         this.resetState();
@@ -20,6 +48,8 @@ class ImageInput extends Component {
             imageURL: URL.createObjectURL(event.target.files[0]),
             loading: true
         });
+
+        this.handleImage();
     }
 
     resetState = () => {
