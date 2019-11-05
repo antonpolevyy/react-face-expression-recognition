@@ -88,24 +88,6 @@ class EmotionCopycat extends Component {
         const faceDesc = await getFacialExpression(IMG_TEST_URL);
     }
 
-    // getTopExpression(allExpressions) {
-    //     let expression = null;
-    //     if (!allExpressions) return
-
-    //     const expressions = Object.keys(allExpressions).map((key) => {
-    //         const value = allExpressions[key];
-    //         return value;
-    //     })
-    //     const max = Math.max(...expressions);
-            
-    //     expression = Object.keys(allExpressions).filter((key) => {
-    //         return allExpressions[key] === max; 
-    //     })[0];
-    //     // console.log('getTopExpression()', expression)
-
-    //     return expression;
-    // }
-
     async getTopExpression(imgURL) {
         // const faceURL = this.state.faceURL;
         const allExpressions = await getFacialExpression(imgURL);
@@ -122,7 +104,6 @@ class EmotionCopycat extends Component {
         expression = Object.keys(allExpressions).filter((key) => {
             return allExpressions[key] === max; 
         })[0];
-        console.log('getTopExpression()', expression)
 
         return expression;
     }
@@ -200,6 +181,11 @@ class EmotionCopycat extends Component {
             const imgBlob = await getImageBlobFromStream(this.state.streamInput);
             const imgURL = await window.URL.createObjectURL(imgBlob);
             this.setState({ frameURL: imgURL });
+
+            // get facial expressin
+            const frameURL = this.state.frameURL;
+            const expression = await this.getTopExpression(frameURL);
+            this.setState({ frameExpression: expression });
         } catch(err) {
             console.log(err);
         }
@@ -261,7 +247,11 @@ class EmotionCopycat extends Component {
                             </div>
                             <Card.Body>
                                 <Card.Text>
-                                    Try to make the same facial expression
+                                    {this.state.frameExpression ? (
+                                        <p>{this.state.frameExpression}</p>
+                                    ) : (
+                                        <p>Try to make the same facial expression</p>
+                                    )}
                                 </Card.Text>
                             </Card.Body>
                         </Card>

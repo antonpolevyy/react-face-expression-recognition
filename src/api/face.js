@@ -93,7 +93,7 @@ export async function getFacialExpression(imgBlob, inputSize = 512) {
     var expressions = null;
     if (fullDesc) expressions = fullDesc.expressions;
     
-    console.log('face.js expressionsDesc', expressions);
+    // console.log('face.js expressionsDesc', expressions);
 
     return expressions;    
 } 
