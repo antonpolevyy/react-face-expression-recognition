@@ -59,8 +59,8 @@ class EmotionCopycat extends Component {
 
         this.setState({ gameON: !this.state.gameON });
 
-        // // loopWebcamCapture() triggers only with state.gameON = true
-        // this.loopWebcamCapture();
+        // loopWebcamCapture() triggers only with state.gameON = true
+        this.loopWebcamCapture();
     }
 
     onExitGame() {
@@ -90,42 +90,27 @@ class EmotionCopycat extends Component {
         stopStream(this.state.streamInput);
     }
 
-    async onCaptureImg() {
-        const imgBlob = await getImageBlobFromStream(this.state.streamInput);
-        const imgURL = window.URL.createObjectURL(imgBlob);
-        console.log('onCaptureImg()', imgBlob)
-        console.log('onCaptureImg()', imgURL)
+    async captureWebcamFrame() {
+        if (!this.state.streamInput || !this.state.streamInput.active) {
+            console.log('Can not capture dead stream')
+            return
+        }
 
-
-        const imgBitmap = await grabFrameFromStream(this.state.streamInput);
-        // const imgURL2 = URL.createObjectURL(imgBitmap);
-        console.log('onCaptureImg() imgBitmap', imgBitmap)
-        // console.log('onCaptureImg()', imgURL2)
-
-        this.setState({ frameURL: imgURL });
+        try {
+            const imgBlob = await getImageBlobFromStream(this.state.streamInput);
+            const imgURL = await window.URL.createObjectURL(imgBlob);
+            this.setState({ frameURL: imgURL });
+        } catch(err) {
+            console.log('EmotionCopycat.js : captureWebcamFrame(): ', err);
+        }
     }
 
-    // async captureWebcamFrame() {
-    //     if (!this.state.streamInput || !this.state.streamInput.active) {
-    //         console.log('Can not capture dead stream')
-    //         return
-    //     }
+    async loopWebcamCapture() {
+        if (!this.state.gameON) return;
 
-    //     try {
-    //         const imgBlob = await getImageBlobFromStream(this.state.streamInput);
-    //         const imgURL = await window.URL.createObjectURL(imgBlob);
-    //         this.setState({ frameURL: imgURL });
-    //     } catch(err) {
-    //         console.log('EmotionCopycat.js : captureWebcamFrame(): ', err);
-    //     }
-    // }
-
-    // async loopWebcamCapture() {
-    //     if (!this.state.gameON) return;
-
-    //     await this.captureWebcamFrame();
-    //     setTimeout(this.loopWebcamCapture.bind(this), this.state.frameRate);
-    // }
+        await this.captureWebcamFrame();
+        setTimeout(this.loopWebcamCapture.bind(this), this.state.frameRate);
+    }
 
 // ----------------------------------------------------------
 // -------------------- RENDER Functions --------------------
@@ -176,11 +161,8 @@ class EmotionCopycat extends Component {
                             </div>
                             <Card.Body>
                                 <Card.Text>
-                                Try to make the same facial expression
+                                    Try to make the same facial expression
                                 </Card.Text>
-                                <Button variant="primary" onClick={this.onCaptureImg.bind(this)} >
-                                    Capture Img
-                                </Button>
                             </Card.Body>
                         </Card>
                     </Col>
