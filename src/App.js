@@ -6,6 +6,7 @@ import './App.css';
 import Home from './pages/Home';
 import ImageInput from './pages/ImageInput';
 import CameraInput from './pages/CameraInput';
+import EmotionCopycat from './pages/EmotionCopycat';
 
 export default class App extends Component {
   render() {
@@ -15,6 +16,7 @@ export default class App extends Component {
           <Route exact path='/' component={ Home } />
           <Route exact path='/photo' component={ ImageInput } />
           <Route exact path='/camera' component={ CameraInput } />
+          <Route exact path='/copycat' component={ EmotionCopycat } />
         </Router>
       </div>
     );

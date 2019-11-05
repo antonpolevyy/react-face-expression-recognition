@@ -12,6 +12,9 @@ export default class Home extends Component {
                 <li>
                     <Link to='/camera'>Video Camera</Link>
                 </li>
+                <li>
+                    <Link to='/copycat'>Emotion Copycat</Link>
+                </li>
             </div>
         );
     }
