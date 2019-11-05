@@ -18,15 +18,19 @@ import {
 import './EmotionCopycat.css'
 
 
+
 const IMG_TEST_URL = process.env.PUBLIC_URL + '/img/test.jpeg';
-const FACE_URL = process.env.PUBLIC_URL + '/img/faces/disgusted00.jpg';
+// const FACE_URL = process.env.PUBLIC_URL + '/img/faces/disgusted00.jpg';
+const PATH_TO_FACES = process.env.PUBLIC_URL + '/img/faces/';
+const FACES_JSON = process.env.PUBLIC_URL + '/img/faces/faces.json';
 
 // Initia state
 const INIT_STATE = {
     loading: true,
     gameON: false,
     score: 0,
-    faceURL: FACE_URL,
+    faceURL: null,
+    faceURLs: null,
     frameURL: null,
     streamInput: null,
     frameRate: 20,   // 40 = 25 frames per second (1000 = 1 fps)
@@ -46,11 +50,32 @@ class EmotionCopycat extends Component {
 
     componentDidMount = async () => {
         this.setState({ loading: true });
+        await this.getFacesFromJson();
+        
         // await loadModels();
         // await this.warmUpFaceapi();
         this.setState({ loading: false });
         console.log('Ready to go!')
     }
+
+
+    async getFacesFromJson() {
+        const response = await fetch(FACES_JSON);
+        const jsonData = await response.json();
+        this.setState({ faceURLs: jsonData.files });
+        console.log('Got list of faces', this.state.faceURLs);
+    }
+
+    setRandomFaceImg() {
+        const items = this.state.faceURLs;
+        const item = items[Math.floor(Math.random()*items.length)];
+        const face_path = PATH_TO_FACES + item;
+        this.setState({ faceURL: face_path });
+    }
+
+// ----------------------------------------------------------
+// -------------------- GAME Functions --------------------
+// ----------------------------------------------------------
 
     async onStartGame() {
         console.log('onStartGame()');
@@ -61,6 +86,8 @@ class EmotionCopycat extends Component {
 
         // loopWebcamCapture() triggers only with state.gameON = true
         this.loopWebcamCapture();
+        // set random face image from list
+        this.setRandomFaceImg();
     }
 
     onExitGame() {
@@ -68,6 +95,11 @@ class EmotionCopycat extends Component {
         this.stopWebcamStream();
         this.setState({ gameON: !this.state.gameON });
     }
+
+
+// ----------------------------------------------------------
+// -------------------- WEBCAM Functions --------------------
+// ----------------------------------------------------------
 
     async getWebcamStream() {
         if (this.state.streamInput && this.state.streamInput.active) 
@@ -147,7 +179,7 @@ class EmotionCopycat extends Component {
                         <h2>Score: {this.state.score}</h2>
                     </Col>
                     <Col>
-                        <Button variant="primary" >
+                        <Button variant="primary" onClick={this.setRandomFaceImg.bind(this)} >
                             ⟳
                         </Button>
                     </Col>
