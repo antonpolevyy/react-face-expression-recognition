@@ -8,18 +8,21 @@ import {
     takePhotoFromStream,
     getImageBlobFromStream
 } from '../api/videoHelper';
-import { conv2dTranspose } from '@tensorflow/tfjs-core';
+// import { conv2dTranspose } from '@tensorflow/tfjs-core';
+
+import './CameraInput.css'
 
 const IMG_TEST_URL = process.env.PUBLIC_URL + '/img/test.jpeg';
 
 // Initial State
 const INIT_STATE = {
+    loading: true,
     readyToGo: false,
     imageBitmap: null,
     // imageURL: null,
     fullDesc: null,
     streamInput: null,
-    intervalRate: 100,
+    intervalRate: 40,   // 40 = 25 frames per second (1000 = 1 fps)
     intervalProcess: null
 };
 
@@ -39,8 +42,9 @@ class CamearInput extends Component {
 
     componentDidMount = async () => {
         await loadModels();
-        await this.heatUpFaceapi();
+        await this.warmUpFaceapi();
         this.setState({ readyToGo: true });
+        this.setState({ loading: false });
         console.log('Ready to go!')
     }
 
@@ -48,7 +52,7 @@ class CamearInput extends Component {
         this.setState({ ...INIT_STATE });
     }
 
-    heatUpFaceapi = async () => {
+    warmUpFaceapi = async () => {
         const faceDesc = await getFullFaceDescription(IMG_TEST_URL);
     }
 
@@ -189,12 +193,15 @@ class CamearInput extends Component {
                         <p>Try "Start", then "Grab Frame"</p>
                     </div>
                 ) : (
-                    <p>Wait, Face recognition is not ready yet...</p>
+                    <div>
+                        <p className="red-text">Wait, Face recognition is not ready yet...</p>
+                        <div className="loader"></div>
+                    </div>
                 )}
 
                 <div>
                     <video ref="webcamInput" autoPlay muted></video>
-                    <button onClick={this.onGetUserMedia.bind(this)}>Start (Get User Media)</button>
+                    <button className="button" onClick={this.onGetUserMedia.bind(this)} disabled={this.state.loading}>Start (Get User Media)</button>
                     <button onClick={this.onStopWebcamInput.bind(this)}>Stop</button>
                 </div>
 
@@ -215,7 +222,7 @@ class CamearInput extends Component {
                 ) : null}
 
                 <div>
-                    <canvas ref="frameCanvas" width={VIDEO_CONSTRAINS.width} height={VIDEO_CONSTRAINS.height} />
+                    <canvas ref="frameCanvas" className="mirror" width={VIDEO_CONSTRAINS.width} height={VIDEO_CONSTRAINS.height} />
                 </div>
             </div>
         );
