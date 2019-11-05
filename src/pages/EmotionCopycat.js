@@ -106,9 +106,9 @@ class EmotionCopycat extends Component {
     //     return expression;
     // }
 
-    async getTopExpression(faceURL) {
+    async getTopExpression(imgURL) {
         // const faceURL = this.state.faceURL;
-        const allExpressions = await getFacialExpression(faceURL);
+        const allExpressions = await getFacialExpression(imgURL);
 
         let expression = null;
         if (!allExpressions) return
