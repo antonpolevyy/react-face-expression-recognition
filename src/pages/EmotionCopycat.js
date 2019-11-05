@@ -10,8 +10,6 @@ import Card from 'react-bootstrap/Card';
 import { 
     initWebcamStream, 
     stopStream,
-    grabFrameFromStream,
-    takePhotoFromStream,
     getImageBlobFromStream
 } from '../api/videoHelper';
 
@@ -19,8 +17,7 @@ import './EmotionCopycat.css'
 
 
 
-const IMG_TEST_URL = process.env.PUBLIC_URL + '/img/test.jpeg';
-// const FACE_URL = process.env.PUBLIC_URL + '/img/faces/disgusted00.jpg';
+// const IMG_TEST_URL = process.env.PUBLIC_URL + '/img/test.jpeg';
 const PATH_TO_FACES = process.env.PUBLIC_URL + '/img/faces/';
 const FACES_JSON = process.env.PUBLIC_URL + '/img/faces/faces.json';
 
@@ -84,7 +81,7 @@ class EmotionCopycat extends Component {
 
         this.setState({ gameON: !this.state.gameON });
 
-        // loopWebcamCapture() triggers only with state.gameON = true
+        // !! loopWebcamCapture() triggers only with state.gameON = true
         this.loopWebcamCapture();
         // set random face image from list
         this.setRandomFaceImg();
@@ -133,7 +130,7 @@ class EmotionCopycat extends Component {
             const imgURL = await window.URL.createObjectURL(imgBlob);
             this.setState({ frameURL: imgURL });
         } catch(err) {
-            console.log('EmotionCopycat.js : captureWebcamFrame(): ', err);
+            console.log(err);
         }
     }
 
