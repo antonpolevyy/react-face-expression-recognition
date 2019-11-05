@@ -33,12 +33,6 @@ class ImageInput extends Component {
             // }
         });
 
-        // if (!!this.state.descriptors && !! this.state.faceMatcher) {
-        //     let match = await this.state.descriptors.map(descriptor => 
-        //         this.state.faceMatcher.findBestMatch(descriptor)
-        //     );
-        //     this.setState({ match });
-        // }
     }
 
     handleFileChange = async event => {

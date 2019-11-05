@@ -7,6 +7,8 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 
+
+import { loadModels, getFacialExpressions, getFacialExpression } from '../api/face';
 import { 
     initWebcamStream, 
     stopStream,
@@ -17,7 +19,7 @@ import './EmotionCopycat.css'
 
 
 
-// const IMG_TEST_URL = process.env.PUBLIC_URL + '/img/test.jpeg';
+const IMG_TEST_URL = process.env.PUBLIC_URL + '/img/test.jpeg';
 const PATH_TO_FACES = process.env.PUBLIC_URL + '/img/faces/';
 const FACES_JSON = process.env.PUBLIC_URL + '/img/faces/faces.json';
 
@@ -26,9 +28,11 @@ const INIT_STATE = {
     loading: true,
     gameON: false,
     score: 0,
-    faceURL: null,
     faceURLs: null,
+    faceURL: null,
+    faceExpression: null,
     frameURL: null,
+    frameExpression: null,
     streamInput: null,
     frameRate: 20,   // 40 = 25 frames per second (1000 = 1 fps)
 }
@@ -49,12 +53,17 @@ class EmotionCopycat extends Component {
         this.setState({ loading: true });
         await this.getFacesFromJson();
         
-        // await loadModels();
-        // await this.warmUpFaceapi();
+        await loadModels();
+        await this.warmUpFaceapi();
+
         this.setState({ loading: false });
         console.log('Ready to go!')
     }
 
+
+// ----------------------------------------------------------
+// -------------------- IMAGES LOAD Functions --------------------
+// ----------------------------------------------------------
 
     async getFacesFromJson() {
         const response = await fetch(FACES_JSON);
@@ -63,11 +72,59 @@ class EmotionCopycat extends Component {
         console.log('Got list of faces', this.state.faceURLs);
     }
 
-    setRandomFaceImg() {
-        const items = this.state.faceURLs;
-        const item = items[Math.floor(Math.random()*items.length)];
+    async setRandomFaceImg() {
+        const items = await this.state.faceURLs;
+        const item = await items[Math.floor(Math.random()*items.length)];
         const face_path = PATH_TO_FACES + item;
-        this.setState({ faceURL: face_path });
+        await  this.setState({ faceURL: face_path });
+    }
+
+
+// ----------------------------------------------------------
+// -------------------- FACE-API Functions --------------------
+// ----------------------------------------------------------
+
+    warmUpFaceapi = async () => {
+        const faceDesc = await getFacialExpression(IMG_TEST_URL);
+    }
+
+    // getTopExpression(allExpressions) {
+    //     let expression = null;
+    //     if (!allExpressions) return
+
+    //     const expressions = Object.keys(allExpressions).map((key) => {
+    //         const value = allExpressions[key];
+    //         return value;
+    //     })
+    //     const max = Math.max(...expressions);
+            
+    //     expression = Object.keys(allExpressions).filter((key) => {
+    //         return allExpressions[key] === max; 
+    //     })[0];
+    //     // console.log('getTopExpression()', expression)
+
+    //     return expression;
+    // }
+
+    async getTopExpression(faceURL) {
+        // const faceURL = this.state.faceURL;
+        const allExpressions = await getFacialExpression(faceURL);
+
+        let expression = null;
+        if (!allExpressions) return
+
+        const expressions = Object.keys(allExpressions).map((key) => {
+            const value = allExpressions[key];
+            return value;
+        })
+        const max = Math.max(...expressions);
+            
+        expression = Object.keys(allExpressions).filter((key) => {
+            return allExpressions[key] === max; 
+        })[0];
+        console.log('getTopExpression()', expression)
+
+        return expression;
     }
 
 // ----------------------------------------------------------
@@ -83,14 +140,28 @@ class EmotionCopycat extends Component {
 
         // !! loopWebcamCapture() triggers only with state.gameON = true
         this.loopWebcamCapture();
+
         // set random face image from list
-        this.setRandomFaceImg();
+        await  this.setRandomFaceImg();
+        // get facial expressin of image
+        const faceURL = this.state.faceURL;
+        const expression = await this.getTopExpression(faceURL);
+        this.setState({ faceExpression: expression });
     }
 
     onExitGame() {
         console.log('onExitGame()');
         this.stopWebcamStream();
         this.setState({ gameON: !this.state.gameON });
+    }
+
+    async onResetImageBtn() {
+        // set random face image from list
+        await this.setRandomFaceImg();
+        // get facial expressin of image
+        const faceURL = this.state.faceURL;
+        const expression = await this.getTopExpression(faceURL);
+        this.setState({ faceExpression: expression });
     }
 
 
@@ -176,7 +247,7 @@ class EmotionCopycat extends Component {
                         <h2>Score: {this.state.score}</h2>
                     </Col>
                     <Col>
-                        <Button variant="primary" onClick={this.setRandomFaceImg.bind(this)} >
+                        <Button variant="primary" onClick={this.onResetImageBtn.bind(this)} >
                             ⟳
                         </Button>
                     </Col>
@@ -198,9 +269,12 @@ class EmotionCopycat extends Component {
 
                     <Col>
                         <Card>
+                            <Card.Title>Copy Me</Card.Title>
                             <Card.Img variant="top" src={this.state.faceURL} />
                             <Card.Body>
-                                <Card.Title>Copy Me</Card.Title>
+                                <Card.Text>
+                                    {this.state.faceExpression}
+                                </Card.Text>
                                 <Button variant="primary" disabled >? (meaning)</Button>
                             </Card.Body>
                         </Card>

@@ -41,3 +41,59 @@ export async function getFullFaceDescription(imgBlob, inputSize = 512) {
 
     return fullDesc;    
 } 
+
+export async function getFacialExpressions(imgBlob, inputSize = 512) {
+    // tiny_face_detector_options
+    let scoreThreshold = 0.5;
+    const OPTION = new faceapi.TinyFaceDetectorOptions({
+        inputSize,
+        scoreThreshold
+    });
+    const useTinyModel = true;
+
+    // fetch image to api
+    let img = await faceapi.fetchImage(imgBlob);
+    // console.log('faceapi input is ', img)
+
+    // detect all faces and their expressions from image
+    let fullDesc = await faceapi
+        .detectAllFaces(img, OPTION)
+        .withFaceExpressions()
+
+    var expressions = [];
+    fullDesc.map(data => {
+        console.log(data)
+        if (data.expressions) expressions.push(data.expressions);
+    });
+    
+    console.log('face.js expressionsDesc', expressions);
+
+    return expressions;    
+} 
+
+
+export async function getFacialExpression(imgBlob, inputSize = 512) {
+    // tiny_face_detector_options
+    let scoreThreshold = 0.5;
+    const OPTION = new faceapi.TinyFaceDetectorOptions({
+        inputSize,
+        scoreThreshold
+    });
+    const useTinyModel = true;
+
+    // fetch image to api
+    let img = await faceapi.fetchImage(imgBlob);
+    // console.log('faceapi input is ', img)
+
+    // detect all faces and their expressions from image
+    let fullDesc = await faceapi
+        .detectSingleFace(img, OPTION)
+        .withFaceExpressions()
+
+    var expressions = null;
+    if (fullDesc) expressions = fullDesc.expressions;
+    
+    console.log('face.js expressionsDesc', expressions);
+
+    return expressions;    
+} 
