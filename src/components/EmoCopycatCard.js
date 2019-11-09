@@ -66,7 +66,7 @@ export default class EmoCopycatCard extends Component {
 
     render() {
 
-        let { header, imgURL, title, mirrored } = this.props;
+        let { header, imgURL, title, text, mirrored } = this.props;
 
         const mirrorImage_style = {
             transform: 'scaleX(-1)'
@@ -132,8 +132,7 @@ export default class EmoCopycatCard extends Component {
                         </Figure>
                         <Card.Title>{title}</Card.Title>
                         <Card.Text>
-                            Some quick example text to build on the card title and make up the bulk of
-                            the card's content.
+                            {text}
                         </Card.Text>
                         {/* <Button variant="primary">Go somewhere</Button> */}
                     </Card.Body>

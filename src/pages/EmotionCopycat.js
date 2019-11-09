@@ -214,6 +214,11 @@ class EmotionCopycat extends Component {
     gameOffMode() {
         return (
             <div>
+                <Row>
+                    <Col>
+                        <h1>Emotion Copycat</h1>
+                    </Col>
+                </Row>
                 <Row className="justify-content-md-center">
                     <Col md="auto">
                         <Button variant="success" size="lg" active
@@ -234,6 +239,12 @@ class EmotionCopycat extends Component {
                     <Col>
                         <Button variant="danger" 
                             onClick={this.onExitGame.bind(this)} 
+                            style={{
+                                // position: 'fixed',
+                                position: 'absolute',
+                                top: 0,
+                                left: '15px'
+                            }}
                         >
                             X
                         </Button>
@@ -245,6 +256,11 @@ class EmotionCopycat extends Component {
                         <Button 
                             variant="primary" 
                             onClick={this.onResetImageBtn.bind(this)}
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                right: '15px'
+                            }} 
                         >
                             ⟳
                         </Button>
@@ -254,7 +270,7 @@ class EmotionCopycat extends Component {
                 <Row>
                     <Col>
                         <EmoCopyCatCard 
-                            header = ""
+                            header = "Flex Your Face"
                             imgURL = {this.state.frameURL}
                             mirrored = {true}
                             title = {this.state.frameExpression}
@@ -278,12 +294,6 @@ class EmotionCopycat extends Component {
         return (
             <div>
                 <Container>
-                    <Row>
-                        <Col>
-                            <h1>Emotion Copycat</h1>
-                        </Col>
-                    </Row>
-                    
                     { this.state.gameON ? (
                         <div>
                             {this.gameOnMode()}
