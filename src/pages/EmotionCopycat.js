@@ -15,7 +15,9 @@ import {
     getImageBlobFromStream
 } from '../api/videoHelper';
 
-import './EmotionCopycat.css'
+import './EmotionCopycat.css';
+
+import EmoCopyCatCard from '../components/EmoCopycatCard';
 
 
 
@@ -34,7 +36,7 @@ const INIT_STATE = {
     frameURL: null,
     frameExpression: null,
     streamInput: null,
-    frameRate: 20,   // 40 = 25 frames per second (1000 = 1 fps)
+    frameRate: 10,   // 40 = 25 frames per second (1000 = 1 fps)
 }
 
 const VIDEO_CONSTRAINS = {
@@ -76,74 +78,12 @@ class EmotionCopycat extends Component {
         const items = await this.state.faceURLs;
         const item = await items[Math.floor(Math.random()*items.length)];
         const face_path = PATH_TO_FACES + item;
+        // let imgURL = await this.cropImageToSquare(face_path);
         await  this.setState({ faceURL: face_path });
     }
 
+    
 
-// ----------------------------------------------------------
-// -------------------- FACE-API Functions --------------------
-// ----------------------------------------------------------
-
-    warmUpFaceapi = async () => {
-        const faceDesc = await getFacialExpression(IMG_TEST_URL);
-    }
-
-    async getTopExpression(imgURL) {
-        // const faceURL = this.state.faceURL;
-        const allExpressions = await getFacialExpression(imgURL);
-
-        let expression = null;
-        if (!allExpressions) return
-
-        const expressions = Object.keys(allExpressions).map((key) => {
-            const value = allExpressions[key];
-            return value;
-        })
-        const max = Math.max(...expressions);
-            
-        expression = Object.keys(allExpressions).filter((key) => {
-            return allExpressions[key] === max; 
-        })[0];
-
-        return expression;
-    }
-
-// ----------------------------------------------------------
-// -------------------- GAME Functions --------------------
-// ----------------------------------------------------------
-
-    async onStartGame() {
-        console.log('onStartGame()');
-        await this.getWebcamStream();
-        console.log('onStartGame()', this.state.streamInput)
-
-        this.setState({ gameON: !this.state.gameON });
-
-        // !! loopWebcamCapture() triggers only with state.gameON = true
-        this.loopWebcamCapture();
-
-        // set random face image from list
-        await  this.setRandomFaceImg();
-        // get facial expressin of image
-        const faceURL = this.state.faceURL;
-        const expression = await this.getTopExpression(faceURL);
-        this.setState({ faceExpression: expression });
-    }
-
-    onExitGame() {
-        console.log('onExitGame()');
-        this.stopWebcamStream();
-        this.setState({ gameON: !this.state.gameON });
-    }
-
-    async onResetImageBtn() {
-        // set random face image from list
-        await this.setRandomFaceImg();
-        // get facial expressin of image
-        const faceURL = this.state.faceURL;
-        const expression = await this.getTopExpression(faceURL);
-        this.setState({ faceExpression: expression });
-    }
 
 
 // ----------------------------------------------------------
@@ -198,6 +138,75 @@ class EmotionCopycat extends Component {
         setTimeout(this.loopWebcamCapture.bind(this), this.state.frameRate);
     }
 
+
+// ----------------------------------------------------------
+// -------------------- FACE-API Functions --------------------
+// ----------------------------------------------------------
+
+    warmUpFaceapi = async () => {
+        const faceDesc = await getFacialExpression(IMG_TEST_URL);
+    }
+
+    async getTopExpression(imgURL) {
+        // const faceURL = this.state.faceURL;
+        const allExpressions = await getFacialExpression(imgURL);
+
+        let expression = null;
+        if (!allExpressions) return
+
+        const expressions = Object.keys(allExpressions).map((key) => {
+            const value = allExpressions[key];
+            return value;
+        })
+        const max = Math.max(...expressions);
+            
+        expression = Object.keys(allExpressions).filter((key) => {
+            return allExpressions[key] === max; 
+        })[0];
+
+        return expression;
+    }
+
+
+
+// ----------------------------------------------------------
+// -------------------- GAME Functions --------------------
+// ----------------------------------------------------------
+
+    async onStartGame() {
+        console.log('onStartGame()');
+        await this.getWebcamStream();
+        console.log('onStartGame()', this.state.streamInput)
+
+        this.setState({ gameON: !this.state.gameON });
+
+        // !! loopWebcamCapture() triggers only with state.gameON = true
+        this.loopWebcamCapture();
+
+        // set random face image from list
+        await  this.setRandomFaceImg();
+        // get facial expressin of image
+        const faceURL = this.state.faceURL;
+        const expression = await this.getTopExpression(faceURL);
+        this.setState({ faceExpression: expression });
+    }
+
+    onExitGame() {
+        console.log('onExitGame()');
+        this.stopWebcamStream();
+        this.setState({ gameON: !this.state.gameON });
+    }
+
+    async onResetImageBtn() {
+        // set random face image from list
+        await this.setRandomFaceImg();
+        // get facial expressin of image
+        const faceURL = this.state.faceURL;
+        const expression = await this.getTopExpression(faceURL);
+        this.setState({ faceExpression: expression });
+    }
+
+
 // ----------------------------------------------------------
 // -------------------- RENDER Functions --------------------
 // ----------------------------------------------------------
@@ -220,9 +229,9 @@ class EmotionCopycat extends Component {
 
     gameOnMode() {
         return (
-            <div>
+            <div>                
                 <Row>
-                    <Col md={4}>
+                    <Col>
                         <Button variant="danger" 
                             onClick={this.onExitGame.bind(this)} 
                         >
@@ -233,7 +242,10 @@ class EmotionCopycat extends Component {
                         <h2>Score: {this.state.score}</h2>
                     </Col>
                     <Col>
-                        <Button variant="primary" onClick={this.onResetImageBtn.bind(this)} >
+                        <Button 
+                            variant="primary" 
+                            onClick={this.onResetImageBtn.bind(this)}
+                        >
                             ⟳
                         </Button>
                     </Col>
@@ -241,33 +253,20 @@ class EmotionCopycat extends Component {
 
                 <Row>
                     <Col>
-                        <Card>
-                            <div className="mirror">
-                                <Card.Img variant="top" src={this.state.frameURL} alt="Webcam Stream" />
-                            </div>
-                            <Card.Body>
-                                <Card.Text>
-                                    {this.state.frameExpression ? (
-                                        <p>{this.state.frameExpression}</p>
-                                    ) : (
-                                        <p>Try to make the same facial expression</p>
-                                    )}
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
+                        <EmoCopyCatCard 
+                            header = ""
+                            imgURL = {this.state.frameURL}
+                            mirrored = {true}
+                            title = {this.state.frameExpression}
+                        />
                     </Col>
 
                     <Col>
-                        <Card>
-                            <Card.Title>Copy Me</Card.Title>
-                            <Card.Img variant="top" src={this.state.faceURL} />
-                            <Card.Body>
-                                <Card.Text>
-                                    {this.state.faceExpression}
-                                </Card.Text>
-                                <Button variant="primary" disabled >? (meaning)</Button>
-                            </Card.Body>
-                        </Card>
+                        <EmoCopyCatCard 
+                            header = "Copy Me"
+                            imgURL = { this.state.faceURL }
+                            title = { this.state.faceExpression }
+                        />
                     </Col>
                 </Row>
 
