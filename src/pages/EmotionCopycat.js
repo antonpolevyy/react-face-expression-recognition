@@ -31,6 +31,7 @@ const INIT_STATE = {
     loading: true,
     gameON: false,
     score: 0,
+    expressionsMatch: false,
     faceURLs: null,
     faceURL: null,
     faceExpression: null,
@@ -195,6 +196,9 @@ class EmotionCopycat extends Component {
         const faceURL = this.state.faceURL;
         const expression = await this.getTopExpression(faceURL);
         this.setState({ faceExpression: expression });
+
+        // check if face expressions in Webcam and exemple image are matching
+        this.loopUpdateExpressionsMatch();
     }
 
     onExitGame() {
@@ -212,6 +216,26 @@ class EmotionCopycat extends Component {
         this.setState({ faceExpression: expression });
     }
 
+    updateExpressionsMatch() {
+        const { faceExpression, frameExpression } = this.state;
+
+        if (!faceExpression || !frameExpression) return
+
+        if (faceExpression == frameExpression){
+            console.log('match', faceExpression)
+            this.setState({ expressionsMatch: true });
+        } else {
+            console.log('no match')
+            this.setState({ expressionsMatch: false });
+        }
+    }
+
+    loopUpdateExpressionsMatch() {
+        if (!this.state.gameON) return;
+
+        this.updateExpressionsMatch();
+        setTimeout(this.loopUpdateExpressionsMatch.bind(this), this.state.frameRate);
+    }
 
 // ----------------------------------------------------------
 // -------------------- GAME RENDER Functions --------------------
