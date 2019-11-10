@@ -6,6 +6,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
+import Modal from 'react-bootstrap/Modal';
 // import Card from 'react-bootstrap/Card';
 
 
@@ -32,6 +33,7 @@ const INIT_STATE = {
     gameON: false,
     score: 0,
     expressionsMatch: false,
+    showWinModal: false,
     faceURLs: null,
     faceURL: null,
     faceExpression: null,
@@ -222,10 +224,10 @@ class EmotionCopycat extends Component {
         if (!faceExpression || !frameExpression) return
 
         if (faceExpression == frameExpression){
-            console.log('match', faceExpression)
             this.setState({ expressionsMatch: true });
+            // show 'You Win' pop-up modal
+            this.setState({ showWinModal: true });
         } else {
-            console.log('no match')
             this.setState({ expressionsMatch: false });
         }
     }
@@ -288,7 +290,9 @@ class EmotionCopycat extends Component {
 
     gameOnMode() {
         return (
-            <div>                
+            <div>
+                {this.winModal()}
+
                 <Row>
                     <Col>
                         <Button variant="danger" 
@@ -344,6 +348,40 @@ class EmotionCopycat extends Component {
         );
     }
 
+    onHideWinModal() {
+        this.setState({ showWinModal: false });
+    }
+
+    winModal() {
+        return (
+            <div>
+                <Modal
+                    show={this.state.showWinModal}
+                    onHide={this.onHideWinModal.bind(this)}
+                    size="lg"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                >
+                    <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        Modal heading
+                    </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                    <h4>Centered Modal</h4>
+                    <p>
+                        Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
+                        dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
+                        consectetur ac, vestibulum at eros.
+                    </p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                    <Button onClick={this.onHideWinModal.bind(this)}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
+            </div>
+        );
+    }
 
 // ----------------------------------------------------------
 // -------------------- RENDER Functions --------------------
