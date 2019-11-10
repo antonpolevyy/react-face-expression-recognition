@@ -5,7 +5,8 @@ import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Card from 'react-bootstrap/Card';
+import Spinner from 'react-bootstrap/Spinner';
+// import Card from 'react-bootstrap/Card';
 
 
 import { loadModels, getFacialExpressions, getFacialExpression } from '../api/face';
@@ -56,7 +57,7 @@ class EmotionCopycat extends Component {
         await this.getFacesFromJson();
         
         await loadModels();
-        await this.warmUpFaceapi();
+        // await this.warmUpFaceapi();
 
         this.setState({ loading: false });
         console.log('Ready to go!')
@@ -148,7 +149,6 @@ class EmotionCopycat extends Component {
     }
 
     async getTopExpression(imgURL) {
-        // const faceURL = this.state.faceURL;
         const allExpressions = await getFacialExpression(imgURL);
 
         let expression = null;
@@ -174,11 +174,17 @@ class EmotionCopycat extends Component {
 // ----------------------------------------------------------
 
     async onStartGame() {
+        this.setState({ loading: true });
+        this.setState({ gameON: true });
         console.log('onStartGame()');
-        await this.getWebcamStream();
-        console.log('onStartGame()', this.state.streamInput)
 
-        this.setState({ gameON: !this.state.gameON });
+        // warms up facial classification (as first classification after reload is slow)
+        await this.warmUpFaceapi();
+
+        await this.getWebcamStream();
+        console.log('onStartGame()', this.state.streamInput);
+
+        this.setState({ loading: false });
 
         // !! loopWebcamCapture() triggers only with state.gameON = true
         this.loopWebcamCapture();
@@ -194,7 +200,7 @@ class EmotionCopycat extends Component {
     onExitGame() {
         console.log('onExitGame()');
         this.stopWebcamStream();
-        this.setState({ gameON: !this.state.gameON });
+        this.setState({ gameON: false });
     }
 
     async onResetImageBtn() {
@@ -208,29 +214,53 @@ class EmotionCopycat extends Component {
 
 
 // ----------------------------------------------------------
-// -------------------- RENDER Functions --------------------
+// -------------------- GAME RENDER Functions --------------------
 // ----------------------------------------------------------
 
     gameOffMode() {
         return (
             <div>
-                <Row>
-                    <Col>
-                        <h1>Emotion Copycat</h1>
-                    </Col>
-                </Row>
-                <Row className="justify-content-md-center">
-                    <Col md="auto">
-                        <Button variant="success" size="lg" active
-                            onClick={this.onStartGame.bind(this)}
-                        >
-                            Start Game
-                        </Button>
-                    </Col>
-                </Row>
+                <Container className="h-100">
+                    <Row className="align-items-start">
+                        <Col>
+                            <h1>Emotion Copycat</h1>
+                        </Col>
+                    </Row>
+                    <Row className="h-50" >
+                        <Col className="h-100 d-table">
+                            <Button 
+                                ref="startGameButton"
+                                className="d-table-cell align-middle"
+                                variant="success" 
+                                size="lg" 
+                                active
+                                onClick={this.onStartGame.bind(this)}
+                                disabled={this.state.gameON}
+                            >
+                                {this.state.gameON ? (
+                                    <div>
+                                        <Spinner
+                                            as="span"
+                                            animation="grow"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                        />
+                                        Loading...
+                                    </div>
+                                ) : (
+                                    <div>
+                                        Start Game 
+                                    </div>
+                                )}
+                            </Button>
+                        </Col>
+                    </Row>
+                </Container>
             </div>
         );
     }
+
 
     gameOnMode() {
         return (
@@ -290,11 +320,16 @@ class EmotionCopycat extends Component {
         );
     }
 
+
+// ----------------------------------------------------------
+// -------------------- RENDER Functions --------------------
+// ----------------------------------------------------------
+
     render() {
         return (
             <div>
                 <Container>
-                    { this.state.gameON ? (
+                    { this.state.gameON && !this.state.loading ? (
                         <div>
                             {this.gameOnMode()}
                         </div>
