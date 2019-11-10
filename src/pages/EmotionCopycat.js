@@ -216,6 +216,7 @@ class EmotionCopycat extends Component {
         const faceURL = this.state.faceURL;
         const expression = await this.getTopExpression(faceURL);
         this.setState({ faceExpression: expression });
+        console.log('onResetImageBtn() is done');
     }
 
     updateExpressionsMatch() {
@@ -237,6 +238,12 @@ class EmotionCopycat extends Component {
 
         this.updateExpressionsMatch();
         setTimeout(this.loopUpdateExpressionsMatch.bind(this), this.state.frameRate);
+    }
+
+    async onHideWinModal() {
+        await this.onResetImageBtn();
+        this.setState({ showWinModal: false });
+        console.log('onHideWinModal()', this.state.showWinModal);
     }
 
 // ----------------------------------------------------------
@@ -348,9 +355,6 @@ class EmotionCopycat extends Component {
         );
     }
 
-    onHideWinModal() {
-        this.setState({ showWinModal: false });
-    }
 
     winModal() {
         return (
