@@ -240,10 +240,15 @@ class EmotionCopycat extends Component {
         setTimeout(this.loopUpdateExpressionsMatch.bind(this), this.state.frameRate);
     }
 
+    addToScore(num) {
+        this.setState({ score: this.state.score + num });
+    }
+
     async onHideWinModal() {
         await this.onResetImageBtn();
         this.setState({ showWinModal: false });
-        console.log('onHideWinModal()', this.state.showWinModal);
+        // add points to score
+        this.addToScore(1);
     }
 
 // ----------------------------------------------------------
