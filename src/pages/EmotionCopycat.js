@@ -7,7 +7,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
 import Modal from 'react-bootstrap/Modal';
-// import Card from 'react-bootstrap/Card';
 
 
 import { loadModels, getFacialExpressions, getFacialExpression } from '../api/face';
@@ -340,7 +339,7 @@ class EmotionCopycat extends Component {
                 <Row>
                     <Col>
                         <EmoCopyCatCard 
-                            header = "Flex Your Face"
+                            header = "You"
                             imgURL = {this.state.frameURL}
                             mirrored = {true}
                             title = {this.state.frameExpression}
